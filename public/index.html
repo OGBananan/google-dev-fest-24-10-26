@@ -6,133 +6,337 @@
 <title>AMC Civic Agent</title>
 <style>
   :root{
-    --bg:#0d1117; --panel:#161b22; --line:#272e38; --fg:#e6edf3;
-    --muted:#8b949e; --accent:#4f9cf9; --ok:#3fb950; --warn:#d29922;
+    --bg:#faf9f5; --panel:#ffffff; --panel2:#f4f2ea; --line:#e6e2d9;
+    --fg:#1f1e1c; --muted:#6e6a62; --dim:#9d978c;
+    --accent:#d97757; --ok:#3f8f63; --warn:#b8860b; --bad:#c4453a;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+    --serif:ui-serif,Georgia,"Iowan Old Style","Times New Roman",serif;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--fg);
-       font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-       padding:0 16px 48px;max-width:560px;margin-inline:auto}
-  header{padding:20px 0 16px}
-  h1{font-size:20px;margin:0}
-  .sub{color:var(--muted);font-size:13px;margin-top:4px}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
-        padding:16px;margin-bottom:14px}
-  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-  input,textarea{width:100%;background:#0d1117;color:var(--fg);border:1px solid var(--line);
-       border-radius:8px;padding:10px;font:inherit;font-size:15px}
+  html,body{height:100%}
+  body{margin:0;background:#efece3;color:var(--fg);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;
+    -webkit-font-smoothing:antialiased;display:flex;justify-content:center}
+
+  /* phone-shaped column: this is a civic app people use on the street */
+  .app{width:100%;max-width:440px;min-height:100%;background:var(--bg);
+    border-inline:1px solid var(--line);display:flex;flex-direction:column;
+    position:relative;overflow:hidden;box-shadow:0 0 60px rgba(60,50,35,.1)}
+
+  /* ---------- top bar ---------- */
+  .bar{display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px;border-bottom:1px solid var(--line);background:var(--panel);
+    position:sticky;top:0;z-index:20}
+  .icobtn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--fg);display:grid;place-items:center;cursor:pointer;padding:0}
+  .icobtn:hover{background:var(--line)}
+  .burger{display:flex;flex-direction:column;gap:3.5px}
+  .burger i{display:block;width:15px;height:1.6px;background:var(--fg);border-radius:2px}
+  .avatar{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);
+    background:var(--accent);color:#fff;
+    display:grid;place-items:center;font-weight:700;font-size:13.5px;cursor:pointer}
+  .barttl{font-size:13.5px;font-weight:600;letter-spacing:-.2px}
+  .barttl span{display:block;font-size:11px;color:var(--dim);font-weight:400}
+
+  /* ---------- hero ---------- */
+  .hero{padding:44px 24px 28px;flex:1}
+  .eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted);
+    border:1px solid var(--line);background:var(--panel);border-radius:999px;
+    padding:5px 11px;margin-bottom:26px;font-family:var(--mono)}
+  .pulse{width:6px;height:6px;border-radius:50%;background:var(--ok);
+    box-shadow:0 0 0 0 rgba(63,143,99,.55);animation:pulse 2.2s infinite}
+  @keyframes pulse{70%{box-shadow:0 0 0 7px rgba(63,143,99,0)}100%{box-shadow:0 0 0 0 rgba(63,143,99,0)}}
+  h1{font:400 33px/1.16 var(--serif);letter-spacing:-.6px;margin:0 0 14px}
+  h1 em{font-style:italic;color:var(--accent)}
+  .sub{font-size:16px;color:var(--muted);margin:0 0 34px}
+  .sub b{color:var(--fg);font-weight:600}
+
+  .bigbtn{width:100%;display:flex;align-items:center;gap:14px;text-align:left;
+    padding:17px 18px;border-radius:14px;border:1px solid var(--line);
+    background:var(--panel);color:var(--fg);cursor:pointer;font:inherit;margin-bottom:11px;
+    transition:.15s}
+  .bigbtn:hover{background:var(--panel2);border-color:#d6d0c4;transform:translateY(-1px)}
+  .bigbtn.hi{background:var(--accent);color:#fff;border-color:transparent}
+  .bigbtn.hi:hover{filter:brightness(1.07)}
+  .bigbtn .gl{width:40px;height:40px;flex:none;border-radius:11px;display:grid;place-items:center;
+    background:rgba(255,255,255,.12);font-size:19px;line-height:1}
+  .bigbtn:not(.hi) .gl{background:var(--panel2);border:1px solid var(--line)}
+  .bigbtn b{display:block;font-size:15px;font-weight:620;letter-spacing:-.2px}
+  .bigbtn s{display:block;text-decoration:none;font-size:12.5px;opacity:.72;margin-top:1px}
+
+  .how{margin-top:34px;border-top:1px solid var(--line);padding-top:22px}
+  .kicker{font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--dim);
+    font-weight:650;margin-bottom:14px}
+  .stp{display:flex;gap:12px;margin-bottom:13px}
+  .stp .n{width:22px;height:22px;flex:none;border-radius:6px;background:var(--panel2);
+    border:1px solid var(--line);display:grid;place-items:center;font:600 11px var(--mono);color:var(--accent)}
+  .stp div p{margin:0;font-size:13.5px;color:var(--muted)}
+  .stp div p b{color:var(--fg);font-weight:600}
+  .stp code{font:11.5px var(--mono);color:var(--accent)}
+  .foot{padding:18px 24px 26px;color:var(--dim);font-size:11.5px;line-height:1.55;
+    border-top:1px solid var(--line)}
+  .foot b{color:var(--muted)}
+
+  /* ---------- drawer ---------- */
+  .scrim{position:fixed;inset:0;background:rgba(40,34,24,.42);backdrop-filter:blur(2px);
+    opacity:0;pointer-events:none;transition:.22s;z-index:40}
+  .scrim.on{opacity:1;pointer-events:auto}
+  .drawer{position:absolute;inset:0 auto 0 0;width:302px;background:var(--panel);
+    border-right:1px solid var(--line);transform:translateX(-100%);transition:.26s cubic-bezier(.3,.8,.3,1);
+    z-index:45;display:flex;flex-direction:column}
+  .drawer.on{transform:none}
+  .dhead{padding:18px 18px 14px;border-bottom:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center}
+  .dhead h3{margin:0;font:400 17px var(--serif)}
+  .dhead p{margin:2px 0 0;font-size:12px;color:var(--dim)}
+  .dlist{overflow-y:auto;flex:1;padding:6px 0}
+  .it{padding:13px 18px;border-bottom:1px solid var(--line);cursor:pointer}
+  .it:hover{background:var(--panel2)}
+  .it .what{font-size:14px;text-transform:capitalize}
+  .it .ti{font:11.5px var(--mono);color:var(--dim);margin-top:2px}
+  .it .rw{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .pill{font-size:11px;padding:3px 9px;border-radius:999px;white-space:nowrap;
+    border:1px solid var(--line);color:var(--muted);background:var(--panel2)}
+  .pill.Resolved{color:var(--ok);border-color:rgba(63,143,99,.32);background:rgba(63,143,99,.09)}
+  .pill.Filed{color:var(--accent);border-color:rgba(217,119,87,.34);background:rgba(217,119,87,.09)}
+  .empty{padding:24px 18px;color:var(--dim);font-size:13.5px;text-align:center}
+
+  /* ---------- sheet (modal) ---------- */
+  .sheet{position:absolute;inset:0;background:var(--bg);z-index:50;display:none;
+    flex-direction:column;animation:rise .24s cubic-bezier(.3,.8,.3,1)}
+  .sheet.on{display:flex}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}}
+  .shead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+    padding:16px 18px;border-bottom:1px solid var(--line);background:var(--panel)}
+  .shead h3{margin:0;font:400 18px var(--serif);letter-spacing:-.2px}
+  .shead p{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
+  .x{background:none;border:0;color:var(--muted);font-size:23px;line-height:1;
+    padding:0 4px;cursor:pointer;border-radius:7px}
+  .x:hover{color:var(--fg)}
+  .sbody{flex:1;overflow-y:auto;padding:18px}
+
+  label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px}
+  input,textarea{width:100%;background:var(--panel);color:var(--fg);border:1px solid var(--line);
+    border-radius:10px;padding:11px 12px;font:inherit;font-size:14.5px}
+  input:focus,textarea:focus{outline:0;border-color:var(--accent)}
   textarea{resize:vertical;min-height:72px}
-  button{width:100%;padding:13px;border:0;border-radius:8px;font:inherit;font-weight:600;
-         background:var(--accent);color:#06121f;cursor:pointer}
-  button:disabled{opacity:.5;cursor:not-allowed}
-  button.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
-  video,img#shot{width:100%;border-radius:8px;background:#000;display:block;aspect-ratio:4/3;object-fit:cover}
-  .row{display:flex;gap:8px;margin-top:10px}
-  .chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);
-        border:1px solid var(--line);border-radius:999px;padding:4px 10px;margin-bottom:10px}
-  .dot{width:7px;height:7px;border-radius:50%;background:var(--warn)}
-  .dot.on{background:var(--ok)}
-  .trace{font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace}
-  .step{opacity:0;transform:translateY(4px);animation:in .28s forwards;
-        padding:7px 0;border-bottom:1px solid var(--line)}
-  .step:last-child{border-bottom:0}
+  .field{margin-bottom:15px}
+  button.act{width:100%;padding:13px;border-radius:11px;border:1px solid transparent;
+    font:inherit;font-weight:620;font-size:14.5px;cursor:pointer;transition:.15s}
+  .primary{background:var(--accent);color:#fff}
+  .primary:hover{filter:brightness(1.08)}
+  .secondary{background:var(--panel);color:var(--fg);border-color:var(--line)}
+  .secondary:hover{background:var(--panel2)}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .row{display:flex;gap:9px;margin-top:10px}
+  .row .act{flex:1}
+
+  video,img#shot{width:100%;border-radius:12px;background:#000;display:block;
+    aspect-ratio:4/3;object-fit:cover;border:1px solid var(--line)}
+  .chip{display:inline-flex;align-items:center;gap:7px;font:11.5px var(--mono);color:var(--muted);
+    border:1px solid var(--line);border-radius:999px;padding:4px 11px;margin-bottom:11px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--warn);flex:none}
+  .dot.on{background:var(--ok)} .dot.off{background:var(--bad)}
+
+  .trace{font:12px/1.5 var(--mono);border:1px solid var(--line);border-radius:11px;
+    background:var(--panel);padding:4px 13px;margin-bottom:15px}
+  .tstep{opacity:0;transform:translateY(3px);animation:in .3s forwards;padding:8px 0;
+    border-bottom:1px solid var(--line);display:flex;gap:8px}
+  .tstep:last-child{border-bottom:0}
   @keyframes in{to{opacity:1;transform:none}}
-  .step .n{color:var(--accent)}
-  .step .v{color:var(--muted)}
-  .tid{font:600 19px ui-monospace,Menlo,monospace;color:var(--ok);letter-spacing:.5px}
-  .err{color:#f85149;font-size:14px}
-  .list{font-size:14px}
-  .list .it{display:flex;justify-content:space-between;gap:10px;padding:9px 0;
-            border-bottom:1px solid var(--line)}
-  .list .it:last-child{border-bottom:0}
-  .list code{color:var(--muted);font-size:12px}
-  h2{font-size:14px;margin:0 0 12px;color:var(--muted);font-weight:600;
-     text-transform:uppercase;letter-spacing:.6px}
-  .hidden{display:none}
+  .tstep .ar{color:var(--dim);flex:none}
+  .tstep .nm{color:var(--accent);flex:none}
+  .tstep.res .nm{color:var(--ok)}
+  .tstep .vl{color:var(--muted);word-break:break-word}
+  .result{border:1px solid rgba(63,143,99,.28);background:rgba(63,143,99,.07);
+    border-radius:12px;padding:16px;margin-bottom:15px}
+  .result .lbl{font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--muted);margin-bottom:5px}
+  .tid{font:650 19px var(--mono);color:var(--ok);letter-spacing:.4px}
+  .result p{margin:10px 0 0;font-size:14px}
+  .err{color:var(--bad);font-size:13px;margin-top:10px}
+
+  .msg{margin-bottom:12px;max-width:88%}
+  .msg.me{margin-left:auto}
+  .msg .bub{padding:10px 13px;border-radius:13px;font-size:14px;border:1px solid var(--line);
+    background:var(--panel)}
+  .msg.me .bub{background:var(--accent);color:#fff;border-color:transparent}
+  .composer{display:flex;gap:8px;padding:13px 16px;border-top:1px solid var(--line);background:var(--panel)}
+  .composer input{flex:1}
+  .composer .act{width:auto;padding:11px 16px}
+  .hint{font-size:12px;color:var(--dim);margin:0 0 14px}
+  .hint code{font:11.5px var(--mono);color:var(--accent)}
+  .hidden{display:none!important}
 </style>
 </head>
 <body>
-<header>
-  <h1>AMC Civic Agent</h1>
-  <div class="sub">Photograph the problem. The agent routes and files it.</div>
-</header>
+<div class="app">
 
-<div class="card" id="capture-card">
-  <div class="chip"><span class="dot" id="geo-dot"></span><span id="geo-text">Locating...</span></div>
-  <video id="cam" playsinline muted autoplay></video>
-  <img id="shot" class="hidden" alt="Captured photo">
-  <div class="row">
-    <button id="shoot">Capture photo</button>
-    <button id="retake" class="ghost hidden">Retake</button>
+  <div class="bar">
+    <button class="icobtn" id="open-drawer" aria-label="My tickets">
+      <span class="burger"><i></i><i></i><i></i></span>
+    </button>
+    <div class="barttl">Civic Agent<span>Ahmedabad</span></div>
+    <div class="avatar" id="avatar" title="Resident">AB</div>
   </div>
-</div>
 
-<div class="card">
-  <label for="desc">What's wrong?</label>
-  <textarea id="desc" placeholder="Large pothole in the middle of the road, cars swerving around it."></textarea>
-  <div style="margin-top:12px">
-    <label for="area">Area <span style="opacity:.7">- used if location is unavailable</span></label>
-    <input id="area" placeholder="e.g. Navrangpura">
+  <div class="hero">
+    <div class="eyebrow"><span class="pulse"></span> agent online · gemini</div>
+    <h1>Help make India a <em>cleaner</em> place.</h1>
+    <p class="sub">Hold the authorities accountable. <b>Photograph the problem</b> — the agent works out what it is, which ward owns it, and files it for you.</p>
+
+    <button class="bigbtn hi" id="cta-report">
+      <span class="gl">＋</span>
+      <span><b>Create a new issue</b><s>Camera, one line, filed in seconds</s></span>
+    </button>
+    <button class="bigbtn" id="cta-chat">
+      <span class="gl">◈</span>
+      <span><b>Chat about filed tickets</b><s>Ask the status of any tracking ID</s></span>
+    </button>
+
+    <div class="how">
+      <div class="kicker">What happens when you file</div>
+      <div class="stp"><div class="n">1</div><div><p><b>It reads the photo.</b> <code>analyze_issue_photo</code> identifies the issue and rates urgency by public risk.</p></div></div>
+      <div class="stp"><div class="n">2</div><div><p><b>It finds who owns the street.</b> <code>find_ward</code> turns your location into a ward and the right department.</p></div></div>
+      <div class="stp"><div class="n">3</div><div><p><b>It files it.</b> <code>file_complaint</code> returns a real tracking ID — the agent can't invent one.</p></div></div>
+      <div class="stp"><div class="n">4</div><div><p><b>It answers for it later.</b> <code>get_complaint_status</code> — just ask, in plain language.</p></div></div>
+    </div>
   </div>
-  <div class="row"><button id="submit" disabled>File complaint</button></div>
-  <div id="err" class="err" style="margin-top:10px"></div>
-</div>
 
-<div class="card hidden" id="trace-card">
-  <h2>Agent trace</h2>
-  <div class="trace" id="trace"></div>
-</div>
+  <div class="foot"><b>Prototype.</b> The AMC side is mocked in local JSON — no real municipal portal is contacted.</div>
 
-<div class="card hidden" id="result-card">
-  <h2>Filed</h2>
-  <div class="tid" id="tid"></div>
-  <p id="reply" style="margin:10px 0 0;font-size:15px"></p>
-  <div style="margin-top:14px">
-    <label for="ask">Ask about this or any complaint</label>
-    <input id="ask" placeholder="What's the status of AMC-2026-000123?">
-    <div class="row"><button id="send" class="ghost">Send</button></div>
+  <!-- drawer: past tickets -->
+  <div class="scrim" id="scrim"></div>
+  <aside class="drawer" id="drawer">
+    <div class="dhead">
+      <div><h3>My tickets</h3><p>Everything you've raised</p></div>
+      <button class="x" id="close-drawer">×</button>
+    </div>
+    <div class="dlist" id="dlist"><div class="empty">Loading…</div></div>
+  </aside>
+
+  <!-- sheet: report -->
+  <div class="sheet" id="sheet-report">
+    <div class="shead">
+      <div><h3 id="rtitle">Create a new issue</h3><p id="rsub">Photograph the problem. The agent handles the rest.</p></div>
+      <button class="x" data-close>×</button>
+    </div>
+    <div class="sbody">
+      <div id="stage-form">
+        <div class="chip"><span class="dot" id="geo-dot"></span><span id="geo-text">locating…</span></div>
+        <video id="cam" playsinline muted autoplay></video>
+        <img id="shot" class="hidden" alt="Captured photo">
+        <div class="row">
+          <button class="act primary" id="shoot">Capture photo</button>
+          <button class="act secondary hidden" id="retake">Retake</button>
+        </div>
+        <div style="margin-top:18px">
+          <div class="field"><label for="desc">What's wrong?</label>
+            <textarea id="desc" placeholder="Large pothole in the middle of the road, two-wheelers swerving around it."></textarea></div>
+          <div class="field"><label for="area">Area <span style="opacity:.65">— used if location is unavailable</span></label>
+            <input id="area" placeholder="e.g. Navrangpura"></div>
+        </div>
+        <button class="act primary" id="submit" disabled>File complaint</button>
+        <div id="err" class="err"></div>
+      </div>
+
+      <div id="stage-result" class="hidden">
+        <div class="trace" id="trace"></div>
+        <div class="result">
+          <div class="lbl">Tracking ID</div>
+          <div class="tid" id="tid">—</div>
+          <p id="reply"></p>
+        </div>
+        <div class="field"><label for="ask">Ask about this complaint</label>
+          <input id="ask" placeholder="What happens next?"></div>
+        <div class="row">
+          <button class="act secondary" id="send">Ask the agent</button>
+          <button class="act primary" id="again">Report another</button>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 
-<div class="card">
-  <h2>Recent complaints</h2>
-  <div class="list" id="list"></div>
+  <!-- sheet: status chat -->
+  <div class="sheet" id="sheet-chat">
+    <div class="shead">
+      <div><h3>Filed tickets</h3><p>Ask about any complaint by tracking ID</p></div>
+      <button class="x" data-close>×</button>
+    </div>
+    <div class="sbody" id="thread">
+      <p class="hint">Try: <code>What's the status of AMC-2026-000123?</code></p>
+    </div>
+    <div class="composer">
+      <input id="cinput" placeholder="Ask about a tracking ID…">
+      <button class="act primary" id="csend">Send</button>
+    </div>
+  </div>
+
 </div>
 
 <script>
 const $ = s => document.querySelector(s);
-let coords = null, blob = null, sessionId = null;
+let coords = null, blob = null, sessionId = null, chatSession = null, stream = null, geoAsked = false;
 
-// Fire geolocation on page load, not at submit: a cold fix takes 5-20s and
-// that silence mid-demo reads as a hang. High accuracy is off on purpose --
-// GPS will not lock indoors, WiFi positioning will.
-if (navigator.geolocation) {
+/* ---------- drawer ---------- */
+function drawer(on) {
+  $('#drawer').classList.toggle('on', on);
+  $('#scrim').classList.toggle('on', on);
+  if (on) loadList();
+}
+$('#open-drawer').onclick = () => drawer(true);
+$('#close-drawer').onclick = () => drawer(false);
+$('#scrim').onclick = () => drawer(false);
+
+/* ---------- sheets ---------- */
+function openSheet(id) {
+  $('#' + id).classList.add('on');
+  if (id === 'sheet-report') { startCamera(); requestLocation(); }
+}
+function closeSheets() {
+  document.querySelectorAll('.sheet').forEach(s => s.classList.remove('on'));
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+}
+$('#cta-report').onclick = () => openSheet('sheet-report');
+$('#cta-chat').onclick = () => openSheet('sheet-chat');
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = closeSheets);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeSheets(); drawer(false); }
+});
+
+/* ---------- location ----------
+   Requested when the report sheet opens, not on page load. High accuracy is
+   off on purpose: GPS will not lock indoors, WiFi positioning will. */
+function requestLocation() {
+  if (geoAsked || !navigator.geolocation) return;
+  geoAsked = true;
   navigator.geolocation.getCurrentPosition(
     p => {
       coords = { lat: +p.coords.latitude.toFixed(6), lng: +p.coords.longitude.toFixed(6) };
-      $('#geo-dot').classList.add('on');
+      $('#geo-dot').className = 'dot on';
       $('#geo-text').textContent = coords.lat + ', ' + coords.lng;
     },
-    () => { $('#geo-text').textContent = 'No location - type an area below'; },
+    () => {
+      $('#geo-dot').className = 'dot off';
+      $('#geo-text').textContent = 'no location — type an area';
+    },
     { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
   );
 }
 
-(async () => {
+async function startCamera() {
+  if (stream) return;
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({
+    stream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: { ideal: 'environment' } }, audio: false
     });
     $('#cam').srcObject = stream;
-  } catch (e) {
-    $('#err').textContent = 'Camera unavailable: ' + e.message;
-  }
-})();
+  } catch (e) { $('#err').textContent = 'Camera unavailable: ' + e.message; }
+}
 
 $('#shoot').onclick = () => {
   const v = $('#cam'), c = document.createElement('canvas');
-  c.width = v.videoWidth || 1280;
-  c.height = v.videoHeight || 960;
+  c.width = v.videoWidth || 1280; c.height = v.videoHeight || 960;
   c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
   c.toBlob(b => {
     blob = b;
@@ -144,7 +348,6 @@ $('#shoot').onclick = () => {
     $('#submit').disabled = false;
   }, 'image/jpeg', 0.85);
 };
-
 $('#retake').onclick = () => {
   blob = null;
   $('#shot').classList.add('hidden');
@@ -154,25 +357,20 @@ $('#retake').onclick = () => {
   $('#submit').disabled = true;
 };
 
-function renderTrace(steps) {
-  const box = $('#trace');
+function renderTrace(box, steps) {
   box.innerHTML = '';
-  $('#trace-card').classList.remove('hidden');
   steps.forEach((s, i) => {
     const d = document.createElement('div');
-    d.className = 'step';
-    d.style.animationDelay = (i * 160) + 'ms';
-    let v;
-    if (s.kind === 'call') {
-      v = Object.entries(s.args)
-        .filter(([k]) => k !== 'image_path')
-        .map(([k, val]) => k + '=' + val).join(' ') || '...';
-    } else {
-      v = Object.values(s.data).join(' / ');
-    }
-    const arrow = s.kind === 'call' ? '-&gt;' : '&lt;-';
-    d.innerHTML = '<span class="n">' + arrow + ' ' + s.name + '</span> <span class="v">' + v + '</span>';
-    box.appendChild(d);
+    d.className = 'tstep' + (s.kind === 'result' ? ' res' : '');
+    d.style.animationDelay = (i * 170) + 'ms';
+    const v = s.kind === 'call'
+      ? Object.entries(s.args).filter(([k]) => k !== 'image_path')
+          .map(([k, val]) => k + '=' + val).join('  ') || 'photo'
+      : Object.values(s.data).join(' · ');
+    const ar = document.createElement('span'); ar.className = 'ar'; ar.textContent = s.kind === 'call' ? '→' : '←';
+    const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = s.name;
+    const vl = document.createElement('span'); vl.className = 'vl'; vl.textContent = v;
+    d.append(ar, nm, vl); box.appendChild(d);
   });
 }
 
@@ -180,7 +378,7 @@ $('#submit').onclick = async () => {
   if (!blob) return;
   $('#err').textContent = '';
   $('#submit').disabled = true;
-  $('#submit').textContent = 'Agent working...';
+  $('#submit').textContent = 'Agent working…';
   const fd = new FormData();
   fd.append('photo', blob, 'capture.jpg');
   fd.append('description', $('#desc').value);
@@ -188,12 +386,15 @@ $('#submit').onclick = async () => {
   if (coords) { fd.append('lat', coords.lat); fd.append('lng', coords.lng); }
   try {
     const r = await fetch('/api/complaints', { method: 'POST', body: fd });
-    if (!r.ok) throw new Error(await r.text());
+    if (!r.ok) throw new Error((await r.text()).slice(0, 180));
     const d = await r.json();
     sessionId = d.session_id;
-    renderTrace(d.trace);
-    $('#result-card').classList.remove('hidden');
-    $('#tid').textContent = d.tracking_id || '-';
+    $('#stage-form').classList.add('hidden');
+    $('#stage-result').classList.remove('hidden');
+    $('#rtitle').textContent = 'Complaint filed';
+    $('#rsub').textContent = 'The agent routed and logged it.';
+    renderTrace($('#trace'), d.trace);
+    $('#tid').textContent = d.tracking_id || '—';
     $('#reply').textContent = d.reply;
     loadList();
   } catch (e) {
@@ -207,30 +408,88 @@ $('#submit').onclick = async () => {
 $('#send').onclick = async () => {
   const msg = $('#ask').value.trim();
   if (!msg || !sessionId) return;
-  $('#send').disabled = true;
+  $('#send').disabled = true; $('#send').textContent = 'Thinking…';
   try {
-    const r = await fetch('/api/complaints/' + sessionId + '/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const d = await (await fetch('/api/complaints/' + sessionId + '/chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: msg })
-    });
-    const d = await r.json();
-    renderTrace(d.trace);
+    })).json();
+    renderTrace($('#trace'), d.trace);
     $('#reply').textContent = d.reply;
     $('#ask').value = '';
-  } finally {
-    $('#send').disabled = false;
-  }
+  } finally { $('#send').disabled = false; $('#send').textContent = 'Ask the agent'; }
 };
 
+$('#again').onclick = () => {
+  blob = null; sessionId = null;
+  $('#retake').click();
+  $('#desc').value = ''; $('#area').value = ''; $('#ask').value = '';
+  $('#stage-result').classList.add('hidden');
+  $('#stage-form').classList.remove('hidden');
+  $('#rtitle').textContent = 'Create a new issue';
+  $('#rsub').textContent = 'Photograph the problem. The agent handles the rest.';
+};
+
+/* ---------- standalone status chat ---------- */
+function bubble(text, me) {
+  const w = document.createElement('div');
+  w.className = 'msg' + (me ? ' me' : '');
+  const b = document.createElement('div');
+  b.className = 'bub'; b.textContent = text;
+  w.appendChild(b);
+  $('#thread').appendChild(w);
+  $('#thread').scrollTop = $('#thread').scrollHeight;
+  return w;
+}
+async function sendChat() {
+  const msg = $('#cinput').value.trim();
+  if (!msg) return;
+  $('#cinput').value = '';
+  bubble(msg, true);
+  const holder = bubble('…', false);
+  $('#csend').disabled = true;
+  try {
+    const d = await (await fetch('/api/chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg, session_id: chatSession })
+    })).json();
+    chatSession = d.session_id;
+    holder.querySelector('.bub').textContent = d.reply || '(no reply)';
+    if (d.trace && d.trace.length) {
+      const t = document.createElement('div');
+      t.className = 'trace'; t.style.marginTop = '10px';
+      renderTrace(t, d.trace);
+      holder.appendChild(t);
+    }
+    $('#thread').scrollTop = $('#thread').scrollHeight;
+    loadList();
+  } catch (e) {
+    holder.querySelector('.bub').textContent = 'Failed: ' + e.message;
+  } finally { $('#csend').disabled = false; }
+}
+$('#csend').onclick = sendChat;
+$('#cinput').addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+$('#ask').addEventListener('keydown', e => { if (e.key === 'Enter') $('#send').click(); });
+
 async function loadList() {
-  const r = await fetch('/api/complaints');
-  const items = await r.json();
-  $('#list').innerHTML = items.map(c =>
-    '<div class="it"><div><div>' + c.issue + ' - ' + c.wardName +
-    '</div><code>' + c.trackingId + '</code></div>' +
-    '<div style="color:var(--muted);font-size:13px">' + c.status + '</div></div>'
-  ).join('') || '<div style="color:var(--muted)">None yet</div>';
+  try {
+    const items = await (await fetch('/api/complaints')).json();
+    if (!items.length) { $('#dlist').innerHTML = '<div class="empty">Nothing filed yet.</div>'; return; }
+    $('#dlist').innerHTML = items.map(c =>
+      '<div class="it" data-tid="' + c.trackingId + '"><div class="rw"><div>' +
+      '<div class="what">' + c.issue + ' · ' + c.wardName + '</div>' +
+      '<div class="ti">' + c.trackingId + '</div></div>' +
+      '<div class="pill ' + c.status.replace(/\s/g, '') + '">' + c.status + '</div></div></div>'
+    ).join('');
+    document.querySelectorAll('.it[data-tid]').forEach(el => {
+      el.onclick = () => {
+        drawer(false);
+        openSheet('sheet-chat');
+        $('#cinput').value = "What's the status of " + el.dataset.tid + '?';
+        sendChat();
+      };
+    });
+  } catch (e) { $('#dlist').innerHTML = '<div class="empty">Could not load.</div>'; }
 }
 loadList();
 </script>

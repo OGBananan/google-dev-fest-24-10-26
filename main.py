@@ -102,17 +102,41 @@ async def create_complaint(
     return JSONResponse({"session_id": session_id, **result})
 
 
+async def _ensure_session(session_id: str) -> None:
+    existing = await session_service.get_session(
+        app_name=APP_NAME, user_id=USER_ID, session_id=session_id
+    )
+    if existing is None:
+        await session_service.create_session(
+            app_name=APP_NAME, user_id=USER_ID, session_id=session_id
+        )
+
+
 @app.post("/api/complaints/{session_id}/chat")
 async def chat(session_id: str, payload: dict):
+    """Follow-up inside the session that filed a specific complaint."""
     message = (payload or {}).get("message", "").strip()
     if not message:
         raise HTTPException(400, "message is required")
-    session = await session_service.get_session(
-        app_name=APP_NAME, user_id=USER_ID, session_id=session_id
-    )
-    if session is None:
-        raise HTTPException(404, "unknown session - file a complaint first")
+    await _ensure_session(session_id)
     return JSONResponse(await _run(session_id, message))
+
+
+@app.post("/api/chat")
+async def general_chat(payload: dict):
+    """Standalone status chat, not tied to filing anything.
+
+    The client keeps its own session id so the thread survives reloads;
+    the session is created on first use.
+    """
+    payload = payload or {}
+    message = (payload.get("message") or "").strip()
+    if not message:
+        raise HTTPException(400, "message is required")
+    session_id = (payload.get("session_id") or "").strip() or f"chat-{uuid.uuid4().hex}"
+    await _ensure_session(session_id)
+    result = await _run(session_id, message)
+    return JSONResponse({"session_id": session_id, **result})
 
 
 @app.get("/api/complaints")
