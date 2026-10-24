@@ -26,7 +26,7 @@ import time
 import uuid
 from pathlib import Path
 
-from fastapi import FastAPI, Form, HTTPException, UploadFile, File
+from fastapi import FastAPI, Form, HTTPException, UploadFile, File, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from google.adk.runners import Runner
@@ -37,6 +37,7 @@ from civic_agent.agent import root_agent
 from civic_agent.chat_agent import chat_agent
 from civic_agent.data import load, mutate, now_ist
 from civic_agent.tools.complaints import get_complaint_status
+from civic_agent.security import MAX_IMAGE_BYTES, image_extension, limit, message_text
 
 APP_NAME = "civic_agent"
 USER_ID = "resident"
@@ -47,6 +48,23 @@ DEMO_FALLBACK = os.getenv("DEMO_FALLBACK", "1") != "0"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(title="Civic Complaint Agent")
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    if request.method == "POST" and request.headers.get("content-length", "").isdigit():
+        if int(request.headers["content-length"]) > MAX_IMAGE_BYTES + 1024 * 1024:
+            return JSONResponse({"detail": "Request is too large"}, status_code=413)
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["Content-Security-Policy"] = "frame-ancestors 'none'; base-uri 'self'; object-src 'none'"
+    if request.url.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store"
+    return response
+
+
 session_service = InMemorySessionService()
 runner = Runner(agent=root_agent, app_name=APP_NAME, session_service=session_service)
 CHAT_APP_NAME = "civic_ticket_chat"
@@ -75,7 +93,8 @@ def _classify(exc: Exception) -> dict:
     if "API key" in text or "401" in text or "403" in text:
         return {"kind": "auth", "title": "API key rejected",
                 "detail": "GOOGLE_API_KEY is missing or not valid for this model."}
-    return {"kind": "error", "title": "The agent run failed", "detail": text[:300]}
+    return {"kind": "error", "title": "The agent run failed",
+            "detail": "Please retry in a moment."}
 
 
 def _cached_run(message: str, session_id: str, error: dict, elapsed: int) -> dict:
@@ -199,20 +218,31 @@ async def _run(session_id: str, message: str, *, chat_mode: bool = False) -> dic
 
 @app.post("/api/complaints")
 async def create_complaint(
+    request: Request,
     photo: UploadFile = File(...),
     description: str = Form(""),
     lat: float | None = Form(None),
     lng: float | None = Form(None),
     area_name: str = Form(""),
 ):
+    if len(description) > 1000 or len(area_name) > 120:
+        raise HTTPException(413, "Complaint text or area name is too long")
+    if (lat is None) != (lng is None):
+        raise HTTPException(400, "Both latitude and longitude are required")
+    if lat is not None and not (-90 <= lat <= 90 and -180 <= lng <= 180):
+        raise HTTPException(400, "Invalid coordinates")
+    if lat is None and not area_name.strip():
+        raise HTTPException(400, "Provide a location or area name")
+    data = await photo.read(MAX_IMAGE_BYTES + 1)
+    suffix = image_extension(data)
+    limit("filing", request.client.host if request.client else "unknown", 12, 600)
     session_id = uuid.uuid4().hex
     await session_service.create_session(
         app_name=APP_NAME, user_id=USER_ID, session_id=session_id
     )
 
-    suffix = Path(photo.filename or "capture.jpg").suffix or ".jpg"
     saved = UPLOAD_DIR / f"{session_id}{suffix}"
-    saved.write_bytes(await photo.read())
+    saved.write_bytes(data)
 
     where = (
         f"coordinates lat={lat}, lng={lng}"
@@ -226,7 +256,10 @@ async def create_complaint(
         f"What the resident said: {description or '(nothing typed)'}"
     )
 
-    result = await _run(session_id, message)
+    try:
+        result = await _run(session_id, message)
+    finally:
+        saved.unlink(missing_ok=True)
     return JSONResponse({"session_id": session_id, **result})
 
 
@@ -241,11 +274,10 @@ async def _ensure_session(session_id: str, app_name: str = APP_NAME) -> None:
 
 
 @app.post("/api/complaints/{session_id}/chat")
-async def chat(session_id: str, payload: dict):
+async def chat(session_id: str, payload: dict, request: Request):
     """Follow-up inside the session that filed a specific complaint."""
-    message = (payload or {}).get("message", "").strip()
-    if not message:
-        raise HTTPException(400, "message is required")
+    message = message_text((payload or {}).get("message"))
+    limit("chat", request.client.host if request.client else "unknown", 40, 60)
     tracking_id = SESSION_TRACKING.get(session_id)
     if not tracking_id:
         raise HTTPException(404, "No filed complaint for this session")
@@ -256,17 +288,19 @@ async def chat(session_id: str, payload: dict):
 
 
 @app.post("/api/chat")
-async def general_chat(payload: dict):
+async def general_chat(payload: dict, request: Request):
     """Standalone status chat, not tied to filing anything.
 
     The client keeps its own session id so the thread survives reloads;
     the session is created on first use.
     """
     payload = payload or {}
-    message = (payload.get("message") or "").strip()
-    if not message:
-        raise HTTPException(400, "message is required")
-    session_id = (payload.get("session_id") or "").strip() or f"chat-{uuid.uuid4().hex}"
+    message = message_text(payload.get("message"))
+    limit("chat", request.client.host if request.client else "unknown", 40, 60)
+    supplied_id = payload.get("session_id") or ""
+    if not isinstance(supplied_id, str):
+        raise HTTPException(400, "invalid chat session id")
+    session_id = supplied_id.strip() or f"chat-{uuid.uuid4().hex}"
     if not session_id.startswith("chat-") or len(session_id) > 100:
         raise HTTPException(400, "invalid chat session id")
     await _ensure_session(session_id, CHAT_APP_NAME)
@@ -279,7 +313,8 @@ async def list_complaints():
     db = load()
     wards = {w["id"]: w["name"] for w in db["wards"]}
     return [
-        {**c, "wardName": wards.get(c["ward"], c["ward"])}
+        {"trackingId": c["trackingId"], "issue": c["issue"],
+         "wardName": wards.get(c["ward"], c["ward"]), "status": c["status"]}
         for c in reversed(db.get("complaints", []))
     ]
 

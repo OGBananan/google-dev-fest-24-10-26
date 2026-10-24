@@ -262,6 +262,9 @@
     letter-spacing:.8px;text-transform:uppercase;color:var(--muted);
     border:1px dashed var(--line);border-radius:999px;padding:3px 9px}
   .hidden{display:none!important}
+  :focus-visible{outline:3px solid #2767d8!important;outline-offset:2px}
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  .it{display:block;width:100%;text-align:left;background:var(--panel);border:0;border-bottom:1px solid var(--line);font:inherit;color:inherit}
 </style>
 </head>
 <body>
@@ -312,25 +315,25 @@
 
   <!-- drawer: past tickets -->
   <div class="scrim" id="scrim"></div>
-  <aside class="drawer" id="drawer">
+  <aside class="drawer" id="drawer" aria-label="My tickets">
     <div class="dhead">
       <div><h3>My tickets</h3><p>Everything you've raised</p></div>
-      <button class="x" id="close-drawer">×</button>
+      <button class="x" id="close-drawer" aria-label="Close tickets">×</button>
     </div>
     <div class="dlist" id="dlist"><div class="empty">Loading…</div></div>
   </aside>
 
   <!-- sheet: report -->
-  <div class="sheet" id="sheet-report">
+  <div class="sheet" id="sheet-report" role="dialog" aria-modal="true" aria-labelledby="rtitle">
     <div class="shead">
       <div><h3 id="rtitle">Create a new issue</h3><p id="rsub">Photograph the problem. The agent handles the rest.</p></div>
       <button class="act secondary hidden" id="again">New issue</button>
-      <button class="x" data-close>×</button>
+      <button class="x" data-close aria-label="Close report">×</button>
     </div>
     <div class="sbody">
       <div id="stage-form">
         <div class="chip"><span class="dot" id="geo-dot"></span><span id="geo-text">locating…</span></div>
-        <video id="cam" playsinline muted autoplay></video>
+        <video id="cam" playsinline muted autoplay aria-label="Camera preview"></video>
         <img id="shot" class="hidden" alt="Captured photo">
         <div class="row">
           <button class="act primary" id="shoot">Capture photo</button>
@@ -343,28 +346,28 @@
             <input id="area" placeholder="e.g. Navrangpura"></div>
         </div>
         <button class="act primary" id="submit" disabled>File complaint</button>
-        <div id="err" class="err"></div>
+        <div id="err" class="err" role="alert"></div>
       </div>
 
       <div id="stage-result" class="hidden">
-        <div id="rthread"></div>
+        <div id="rthread" aria-live="polite"></div>
       </div>
     </div>
     <div class="composer hidden" id="rcomposer">
       <div class="mention"></div>
       <button class="atbtn" data-at title="Insert a ticket">@</button>
-      <input id="ask" placeholder="Ask about this complaint…" autocomplete="off">
+      <input id="ask" aria-label="Ask about this complaint" placeholder="Ask about this complaint…" autocomplete="off">
       <button class="act primary" id="send">Send</button>
     </div>
   </div>
 
   <!-- sheet: status chat -->
-  <div class="sheet" id="sheet-chat">
+  <div class="sheet" id="sheet-chat" role="dialog" aria-modal="true" aria-labelledby="chat-title">
     <div class="shead">
-      <div><h3>Filed tickets</h3><p>Ask about any complaint by tracking ID</p></div>
-      <button class="x" data-close>×</button>
+      <div><h3 id="chat-title">Filed tickets</h3><p>Ask about any complaint by tracking ID</p></div>
+      <button class="x" data-close aria-label="Close chat">×</button>
     </div>
-    <div class="sbody" id="thread">
+    <div class="sbody" id="thread" aria-live="polite">
       <div class="starter" id="starter">
         <h4>Ask about any complaint</h4>
         <p>Type <span class="kbd">@</span> to pull up your tickets and insert a tracking ID,
@@ -379,7 +382,7 @@
     <div class="composer">
       <div class="mention" id="mention"></div>
       <button class="atbtn" data-at title="Insert a ticket">@</button>
-      <input id="cinput" placeholder="Ask about a ticket…" autocomplete="off">
+      <input id="cinput" aria-label="Ask about a ticket" placeholder="Ask about a ticket…" autocomplete="off">
       <button class="act primary" id="csend">Send</button>
     </div>
   </div>
@@ -388,6 +391,7 @@
 
 <script>
 const $ = s => document.querySelector(s);
+const escapeHtml = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 let coords = null, blob = null, sessionId = null, chatSession = null, stream = null, geoAsked = false;
 
 /* ---------- drawer ---------- */
@@ -407,6 +411,7 @@ function lockScroll(on) { document.body.style.overflow = on ? 'hidden' : ''; }
 function openSheet(id) {
   $('#' + id).classList.add('on');
   lockScroll(true);
+  $('#' + id).querySelector('[data-close]').focus();
   if (id === 'sheet-report') { startCamera(); requestLocation(); }
 }
 function closeSheets() {
@@ -784,6 +789,7 @@ const boxFor = el => el && el.closest('.composer') &&
 
 function closeMention() {
   document.querySelectorAll('.mention').forEach(b => b.classList.remove('on'));
+  if (mInput) mInput.setAttribute('aria-expanded', 'false');
   mMatches = []; mStart = -1;
 }
 
@@ -794,9 +800,10 @@ function renderMention() {
   box.innerHTML = '<div class="mhint">↑↓ to choose · Enter to insert</div>' +
     mMatches.map((c, i) =>
       '<div class="mrow' + (i === mSel ? ' sel' : '') + '" data-i="' + i + '">' +
-      '<span class="mt">' + c.trackingId + '</span>' +
-      '<span class="mw">' + c.issue + ' · ' + c.wardName + '</span></div>').join('');
+      '<span class="mt">' + escapeHtml(c.trackingId) + '</span>' +
+      '<span class="mw">' + escapeHtml(c.issue) + ' · ' + escapeHtml(c.wardName) + '</span></div>').join('');
   box.classList.add('on');
+  mInput.setAttribute('aria-expanded', 'true');
   box.querySelectorAll('.mrow').forEach(r => {
     r.onpointerdown = e => { e.preventDefault(); cancelClose(); pickMention(+r.dataset.i); };
   });
@@ -883,10 +890,10 @@ async function loadList() {
     allTickets = items;
     if (!items.length) { $('#dlist').innerHTML = '<div class="empty">Nothing filed yet.</div>'; return; }
     $('#dlist').innerHTML = items.map(c =>
-      '<div class="it" data-tid="' + c.trackingId + '"><div class="rw"><div>' +
-      '<div class="what">' + c.issue + ' · ' + c.wardName + '</div>' +
-      '<div class="ti">' + c.trackingId + '</div></div>' +
-      '<div class="pill ' + c.status.replace(/\s/g, '') + '">' + c.status + '</div></div></div>'
+      '<button class="it" data-tid="' + escapeHtml(c.trackingId) + '"><div class="rw"><div>' +
+      '<div class="what">' + escapeHtml(c.issue) + ' · ' + escapeHtml(c.wardName) + '</div>' +
+      '<div class="ti">' + escapeHtml(c.trackingId) + '</div></div>' +
+      '<div class="pill ' + escapeHtml(c.status.replace(/\s/g, '')) + '">' + escapeHtml(c.status) + '</div></div></button>'
     ).join('');
     document.querySelectorAll('.it[data-tid]').forEach(el => {
       el.onclick = () => {
