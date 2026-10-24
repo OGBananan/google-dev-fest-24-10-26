@@ -134,8 +134,9 @@
   .sbody{flex:1;overflow-y:auto;padding:18px}
 
   label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px}
-  input,textarea{width:100%;background:var(--panel);color:var(--fg);border:1px solid var(--line);
-    border-radius:10px;padding:11px 12px;font:inherit;font-size:14.5px}
+  input,textarea,select{width:100%;background:var(--panel);color:var(--fg);
+    border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;
+    font-size:16px}
   input:focus,textarea:focus{outline:0;border-color:var(--accent)}
   textarea{resize:vertical;min-height:72px}
   .field{margin-bottom:15px}
@@ -183,10 +184,12 @@
   .composer{display:flex;gap:8px;padding:13px 16px;border-top:1px solid var(--line);
     background:var(--panel);position:relative}
   .mention{position:absolute;left:16px;right:16px;bottom:calc(100% + 8px);background:var(--panel);
-    border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 28px rgba(0,0,0,.11);
-    overflow:hidden;display:none;max-height:232px;overflow-y:auto;z-index:5}
+    border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 28px rgba(0,0,0,.14);
+    display:none;max-height:min(232px,38vh);overflow-y:auto;z-index:60;
+    -webkit-overflow-scrolling:touch}
   .mention.on{display:block}
-  .mrow{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--line);
+  .mrow{padding:13px 14px;cursor:pointer;border-bottom:1px solid var(--line);
+    touch-action:manipulation;
     display:flex;justify-content:space-between;align-items:center;gap:10px}
   .mrow:last-child{border-bottom:0}
   .mrow.sel,.mrow:hover{background:var(--panel2)}
@@ -346,6 +349,8 @@
       </div>
     </div>
     <div class="composer hidden" id="rcomposer">
+      <div class="mention"></div>
+      <button class="atbtn" data-at title="Insert a ticket">@</button>
       <input id="ask" placeholder="Ask about this complaint…" autocomplete="off">
       <button class="act primary" id="send">Send</button>
     </div>
@@ -371,7 +376,7 @@
     </div>
     <div class="composer">
       <div class="mention" id="mention"></div>
-      <button class="atbtn" id="atbtn" title="Insert a ticket">@</button>
+      <button class="atbtn" data-at title="Insert a ticket">@</button>
       <input id="cinput" placeholder="Ask about a ticket…" autocomplete="off">
       <button class="act primary" id="csend">Send</button>
     </div>
@@ -762,7 +767,6 @@ function insertAt() {
   el.setSelectionRange(el.value.length, el.value.length);
   updateMention();
 }
-$('#atbtn').onclick = insertAt;
 
 document.querySelectorAll('.sugg button').forEach(b => {
   b.onclick = () => {
@@ -782,33 +786,43 @@ $('#cinput').addEventListener('keydown', e => {
   }
   if (e.key === 'Enter') sendChat();
 });
-$('#ask').addEventListener('keydown', e => { if (e.key === 'Enter') $('#send').click(); });
 
 let allTickets = [];
 
-/* ---------- @ autocomplete for tracking IDs ---------- */
-const mention = () => $('#mention');
-let mSel = 0, mMatches = [], mStart = -1;
+/* ---------- @ autocomplete for tracking IDs ----------
+   Works in both composers: the standalone status chat and the follow-up box
+   that appears after filing. State tracks whichever input is active. */
+let mSel = 0, mMatches = [], mStart = -1, mInput = null, mCloseTimer = null;
 
-function closeMention() { mention().classList.remove('on'); mMatches = []; mStart = -1; }
+function cancelClose() { clearTimeout(mCloseTimer); mCloseTimer = null; }
+
+const boxFor = el => el && el.closest('.composer') &&
+  el.closest('.composer').querySelector('.mention');
+
+function closeMention() {
+  document.querySelectorAll('.mention').forEach(b => b.classList.remove('on'));
+  mMatches = []; mStart = -1;
+}
 
 function renderMention() {
-  if (!mMatches.length) { closeMention(); return; }
-  mention().innerHTML = '<div class="mhint">↑↓ to choose · Enter to insert</div>' +
+  cancelClose();
+  const box = boxFor(mInput);
+  if (!box || !mMatches.length) { closeMention(); return; }
+  box.innerHTML = '<div class="mhint">↑↓ to choose · Enter to insert</div>' +
     mMatches.map((c, i) =>
       '<div class="mrow' + (i === mSel ? ' sel' : '') + '" data-i="' + i + '">' +
       '<span class="mt">' + c.trackingId + '</span>' +
       '<span class="mw">' + c.issue + ' · ' + c.wardName + '</span></div>').join('');
-  mention().classList.add('on');
-  mention().querySelectorAll('.mrow').forEach(r => {
-    r.onmousedown = e => { e.preventDefault(); pickMention(+r.dataset.i); };
+  box.classList.add('on');
+  box.querySelectorAll('.mrow').forEach(r => {
+    r.onpointerdown = e => { e.preventDefault(); cancelClose(); pickMention(+r.dataset.i); };
   });
 }
 
 function pickMention(i) {
   const c = mMatches[i];
-  if (!c || mStart < 0) return;
-  const el = $('#cinput'), v = el.value;
+  if (!c || mStart < 0 || !mInput) return;
+  const el = mInput, v = el.value;
   const before = v.slice(0, mStart), after = v.slice(el.selectionStart);
   el.value = before + c.trackingId + (after.startsWith(' ') ? '' : ' ') + after;
   const pos = (before + c.trackingId + ' ').length;
@@ -816,8 +830,9 @@ function pickMention(i) {
   closeMention();
 }
 
-function updateMention() {
-  const el = $('#cinput'), pos = el.selectionStart, v = el.value;
+function updateMention(el) {
+  mInput = el;
+  const pos = el.selectionStart, v = el.value;
   const at = v.lastIndexOf('@', pos - 1);
   if (at < 0 || (at > 0 && !/\s/.test(v[at - 1]))) return closeMention();
   const q = v.slice(at + 1, pos);
@@ -834,8 +849,49 @@ function updateMention() {
   renderMention();
 }
 
-$('#cinput').addEventListener('input', updateMention);
-$('#cinput').addEventListener('blur', () => setTimeout(closeMention, 120));
+function insertAt(el) {
+  cancelClose();
+  mInput = el;
+  el.focus();
+  if (!el.value.endsWith('@')) el.value += (el.value && !el.value.endsWith(' ') ? ' ' : '') + '@';
+  el.setSelectionRange(el.value.length, el.value.length);
+  updateMention(el);
+}
+
+function wireMention(el, onEnter) {
+  el.addEventListener('input', () => updateMention(el));
+  el.addEventListener('blur', () => {
+    cancelClose();
+    mCloseTimer = setTimeout(closeMention, 220);
+  });
+  el.addEventListener('keydown', e => {
+    if (mMatches.length && mInput === el) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); mSel = (mSel + 1) % mMatches.length; return renderMention(); }
+      if (e.key === 'ArrowUp')   { e.preventDefault(); mSel = (mSel - 1 + mMatches.length) % mMatches.length; return renderMention(); }
+      if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); return pickMention(mSel); }
+      if (e.key === 'Escape')    { e.preventDefault(); return closeMention(); }
+    }
+    if (e.key === 'Enter') onEnter();
+  });
+  const btn = el.closest('.composer').querySelector('[data-at]');
+  if (btn) {
+    // pointerdown + preventDefault keeps focus (and the mobile keyboard) on
+    // the input, so no blur fires and no stale close timer can race us.
+    btn.addEventListener('pointerdown', e => { e.preventDefault(); cancelClose(); });
+    btn.addEventListener('click', e => { e.preventDefault(); cancelClose(); insertAt(el); });
+  }
+}
+
+wireMention($('#cinput'), sendChat);
+wireMention($('#ask'), () => $('#send').click());
+
+document.querySelectorAll('.sugg button').forEach(b => {
+  b.onclick = () => {
+    if (b.dataset.q === '@') return insertAt($('#cinput'));
+    $('#cinput').value = b.dataset.q;
+    sendChat();
+  };
+});
 
 async function loadList() {
   try {
