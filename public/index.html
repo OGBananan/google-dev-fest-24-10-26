@@ -27,44 +27,60 @@
   .bar{display:flex;align-items:center;justify-content:space-between;
     padding:14px 16px;border-bottom:1px solid var(--line);background:var(--panel);
     position:sticky;top:0;z-index:20}
-  .icobtn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);
-    background:var(--panel2);color:var(--fg);display:grid;place-items:center;cursor:pointer;padding:0}
-  .icobtn:hover{background:var(--line)}
+  .icobtn{width:36px;height:36px;border-radius:9px;border:1px solid transparent;
+    background:none;color:var(--fg);display:grid;place-items:center;cursor:pointer;padding:0}
+  .icobtn:hover{background:var(--panel2)}
   .burger{display:flex;flex-direction:column;gap:3.5px}
   .burger i{display:block;width:15px;height:1.6px;background:var(--fg);border-radius:2px}
-  .avatar{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);
-    background:var(--accent);color:#fff;
+  .avatar{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);
+    background:var(--panel2);color:var(--muted);
     display:grid;place-items:center;font-weight:700;font-size:13.5px;cursor:pointer}
   .barttl{font-size:13.5px;font-weight:600;letter-spacing:-.2px}
   .barttl span{display:block;font-size:11px;color:var(--dim);font-weight:400}
 
   /* ---------- hero ---------- */
-  .hero{padding:44px 24px 28px;flex:1}
-  .eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted);
-    border:1px solid var(--line);background:var(--panel);border-radius:999px;
-    padding:5px 11px;margin-bottom:26px;font-family:var(--mono)}
+  .hero{padding:40px 22px 30px;flex:1}
+  .over{font:11px var(--mono);letter-spacing:1.6px;text-transform:uppercase;
+    color:var(--dim);margin-bottom:18px}
   .pulse{width:6px;height:6px;border-radius:50%;background:var(--ok);
     box-shadow:0 0 0 0 rgba(63,143,99,.55);animation:pulse 2.2s infinite}
   @keyframes pulse{70%{box-shadow:0 0 0 7px rgba(63,143,99,0)}100%{box-shadow:0 0 0 0 rgba(63,143,99,0)}}
-  h1{font:400 33px/1.16 var(--serif);letter-spacing:-.6px;margin:0 0 14px}
+  h1{font:400 37px/1.1 var(--serif);letter-spacing:-.9px;margin:0 0 18px}
   h1 em{font-style:italic;color:var(--accent)}
-  .sub{font-size:16px;color:var(--muted);margin:0 0 34px}
+  .sub{font-size:15.5px;color:var(--muted);margin:0 0 30px;max-width:33ch}
   .sub b{color:var(--fg);font-weight:600}
+  .linkbtn{background:none;border:0;padding:10px 2px;font:inherit;font-size:14.5px;
+    color:var(--fg);cursor:pointer;display:inline-flex;align-items:center;gap:7px;
+    border-bottom:1px solid var(--line);border-radius:0;width:auto}
+  .linkbtn:hover{color:var(--accent);border-color:var(--accent)}
+  .linkbtn .ar{font-size:13px;opacity:.6}
 
-  .bigbtn{width:100%;display:flex;align-items:center;gap:14px;text-align:left;
-    padding:17px 18px;border-radius:14px;border:1px solid var(--line);
-    background:var(--panel);color:var(--fg);cursor:pointer;font:inherit;margin-bottom:11px;
-    transition:.15s}
-  .bigbtn:hover{background:var(--panel2);border-color:#d6d0c4;transform:translateY(-1px)}
-  .bigbtn.hi{background:var(--accent);color:#fff;border-color:transparent}
-  .bigbtn.hi:hover{filter:brightness(1.07)}
-  .bigbtn .gl{width:40px;height:40px;flex:none;border-radius:11px;display:grid;place-items:center;
-    background:rgba(255,255,255,.12);font-size:19px;line-height:1}
-  .bigbtn:not(.hi) .gl{background:var(--panel2);border:1px solid var(--line)}
-  .bigbtn b{display:block;font-size:15px;font-weight:620;letter-spacing:-.2px}
-  .bigbtn s{display:block;text-decoration:none;font-size:12.5px;opacity:.72;margin-top:1px}
+  .bigbtn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;
+    text-align:left;padding:16px 18px;border-radius:13px;border:1px solid transparent;
+    background:var(--panel2);color:var(--fg);cursor:pointer;font:inherit;margin-bottom:9px;
+    transition:background .15s,border-color .15s}
+  .bigbtn:hover{background:#ece9df;border-color:var(--line)}
+  .bigbtn.hi{background:var(--accent);color:#fff}
+  .bigbtn.hi:hover{background:#c96a4b}
+  .bigbtn b{display:block;font-size:15px;font-weight:600;letter-spacing:-.2px}
+  .bigbtn s{display:block;text-decoration:none;font-size:12.5px;opacity:.7;margin-top:2px}
+  .bigbtn .ch{flex:none;font-size:15px;opacity:.4}
 
-  .how{margin-top:34px;border-top:1px solid var(--line);padding-top:22px}
+  .how{margin-top:42px;border-top:1px solid var(--line);padding-top:24px}
+  .receipt{border:1px solid var(--line);border-radius:12px;background:var(--panel);
+    font:12px/1.65 var(--mono);overflow:hidden;margin-bottom:12px}
+  .rtop{padding:9px 14px;border-bottom:1px solid var(--line);background:var(--panel2);
+    display:flex;justify-content:space-between;color:var(--dim);font-size:10.5px;letter-spacing:.8px}
+  .rbody{padding:12px 14px}
+  .rl{display:flex;gap:8px;padding:3px 0}
+  .rl .a{color:var(--dim);flex:none;width:11px}
+  .rl .k{color:var(--accent);flex:none}
+  .rl.o .k{color:var(--ok)}
+  .rl .t{color:var(--muted);word-break:break-word}
+  .rfoot{padding:10px 14px;border-top:1px solid var(--line);color:var(--fg);
+    display:flex;justify-content:space-between;align-items:center}
+  .rfoot b{color:var(--ok);letter-spacing:.4px}
+  .cap{font-size:12.5px;color:var(--dim);line-height:1.55;margin:0}
   .kicker{font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--dim);
     font-weight:650;margin-bottom:14px}
   .stp{display:flex;gap:12px;margin-bottom:13px}
@@ -73,7 +89,7 @@
   .stp div p{margin:0;font-size:13.5px;color:var(--muted)}
   .stp div p b{color:var(--fg);font-weight:600}
   .stp code{font:11.5px var(--mono);color:var(--accent)}
-  .foot{padding:18px 24px 26px;color:var(--dim);font-size:11.5px;line-height:1.55;
+  .foot{padding:18px 22px 26px;color:var(--dim);font-size:11.5px;line-height:1.55;
     border-top:1px solid var(--line)}
   .foot b{color:var(--muted)}
 
@@ -161,9 +177,33 @@
   .msg .bub{padding:10px 13px;border-radius:13px;font-size:14px;border:1px solid var(--line);
     background:var(--panel)}
   .msg.me .bub{background:var(--accent);color:#fff;border-color:transparent}
-  .composer{display:flex;gap:8px;padding:13px 16px;border-top:1px solid var(--line);background:var(--panel)}
+  .composer{display:flex;gap:8px;padding:13px 16px;border-top:1px solid var(--line);
+    background:var(--panel);position:relative}
+  .mention{position:absolute;left:16px;right:16px;bottom:calc(100% + 8px);background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(60,50,35,.16);
+    overflow:hidden;display:none;max-height:232px;overflow-y:auto;z-index:5}
+  .mention.on{display:block}
+  .mrow{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .mrow:last-child{border-bottom:0}
+  .mrow.sel,.mrow:hover{background:var(--panel2)}
+  .mrow .mt{font:12px var(--mono);color:var(--accent)}
+  .mrow .mw{font-size:12.5px;color:var(--muted);text-transform:capitalize}
+  .mhint{padding:8px 14px;font-size:11.5px;color:var(--dim);border-bottom:1px solid var(--line)}
   .composer input{flex:1}
   .composer .act{width:auto;padding:11px 16px}
+  .atbtn{width:40px;flex:none;border:1px solid var(--line);background:var(--panel2);
+    color:var(--muted);border-radius:10px;font:600 16px var(--mono);cursor:pointer;padding:0}
+  .atbtn:hover{background:var(--accent);color:#fff;border-color:transparent}
+  .starter{border:1px dashed var(--line);border-radius:12px;padding:16px;margin-bottom:4px}
+  .starter h4{margin:0 0 6px;font:400 15px var(--serif)}
+  .starter p{margin:0 0 12px;font-size:13px;color:var(--muted);line-height:1.55}
+  .kbd{font:11.5px var(--mono);background:var(--panel2);border:1px solid var(--line);
+    border-bottom-width:2px;border-radius:5px;padding:1.5px 6px;color:var(--fg)}
+  .sugg{display:flex;flex-wrap:wrap;gap:7px}
+  .sugg button{font:inherit;font-size:12.5px;cursor:pointer;background:var(--panel);
+    border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:6px 12px}
+  .sugg button:hover{border-color:var(--accent);color:var(--accent)}
   .hint{font-size:12px;color:var(--dim);margin:0 0 14px}
   .hint code{font:11.5px var(--mono);color:var(--accent)}
   .hidden{display:none!important}
@@ -181,25 +221,35 @@
   </div>
 
   <div class="hero">
-    <div class="eyebrow"><span class="pulse"></span> agent online · gemini</div>
+    <div class="over">Ahmedabad · civic reporting</div>
     <h1>Help make India a <em>cleaner</em> place.</h1>
-    <p class="sub">Hold the authorities accountable. <b>Photograph the problem</b> — the agent works out what it is, which ward owns it, and files it for you.</p>
+    <p class="sub">Hold the authorities accountable. Photograph the problem — the rest is handled for you.</p>
 
     <button class="bigbtn hi" id="cta-report">
-      <span class="gl">＋</span>
       <span><b>Create a new issue</b><s>Camera, one line, filed in seconds</s></span>
+      <span class="ch">›</span>
     </button>
     <button class="bigbtn" id="cta-chat">
-      <span class="gl">◈</span>
       <span><b>Chat about filed tickets</b><s>Ask the status of any tracking ID</s></span>
+      <span class="ch">›</span>
     </button>
 
     <div class="how">
-      <div class="kicker">What happens when you file</div>
-      <div class="stp"><div class="n">1</div><div><p><b>It reads the photo.</b> <code>analyze_issue_photo</code> identifies the issue and rates urgency by public risk.</p></div></div>
-      <div class="stp"><div class="n">2</div><div><p><b>It finds who owns the street.</b> <code>find_ward</code> turns your location into a ward and the right department.</p></div></div>
-      <div class="stp"><div class="n">3</div><div><p><b>It files it.</b> <code>file_complaint</code> returns a real tracking ID — the agent can't invent one.</p></div></div>
-      <div class="stp"><div class="n">4</div><div><p><b>It answers for it later.</b> <code>get_complaint_status</code> — just ask, in plain language.</p></div></div>
+      <div class="kicker">A complaint filed this morning</div>
+      <div class="receipt">
+        <div class="rtop"><span>AGENT RUN</span><span>08:14 IST</span></div>
+        <div class="rbody">
+          <div class="rl"><span class="a">→</span><span class="k">analyze_issue_photo</span></div>
+          <div class="rl o"><span class="a">←</span><span class="t">pothole · high · water-filled, mid-carriageway</span></div>
+          <div class="rl"><span class="a">→</span><span class="k">find_ward</span><span class="t">23.0376, 72.5600</span></div>
+          <div class="rl o"><span class="a">←</span><span class="t">W12 Navrangpura · Roads &amp; Buildings</span></div>
+          <div class="rl"><span class="a">→</span><span class="k">file_complaint</span></div>
+          <div class="rl o"><span class="a">←</span><span class="t">accepted</span></div>
+        </div>
+        <div class="rfoot"><span>Tracking ID</span><b>AMC-2026-000123</b></div>
+      </div>
+      <p class="cap">Nothing above is hard-coded. The agent chose those four calls, in that
+      order, from the photo and your location — and you watch it happen.</p>
     </div>
   </div>
 
@@ -264,10 +314,21 @@
       <button class="x" data-close>×</button>
     </div>
     <div class="sbody" id="thread">
-      <p class="hint">Try: <code>What's the status of AMC-2026-000123?</code></p>
+      <div class="starter" id="starter">
+        <h4>Ask about any complaint</h4>
+        <p>Type <span class="kbd">@</span> to pull up your tickets and insert a tracking ID,
+        or just ask in plain language.</p>
+        <div class="sugg">
+          <button data-q="@">@ Pick a ticket</button>
+          <button data-q="What's the status of AMC-2026-000123?">Status of my pothole</button>
+          <button data-q="Which complaints are still open?">What's still open?</button>
+        </div>
+      </div>
     </div>
     <div class="composer">
-      <input id="cinput" placeholder="Ask about a tracking ID…">
+      <div class="mention" id="mention"></div>
+      <button class="atbtn" id="atbtn" title="Insert a ticket">@</button>
+      <input id="cinput" placeholder="Ask about a ticket…" autocomplete="off">
       <button class="act primary" id="csend">Send</button>
     </div>
   </div>
@@ -432,6 +493,8 @@ $('#again').onclick = () => {
 
 /* ---------- standalone status chat ---------- */
 function bubble(text, me) {
+  const st = $('#starter');
+  if (st) st.remove();
   const w = document.createElement('div');
   w.className = 'msg' + (me ? ' me' : '');
   const b = document.createElement('div');
@@ -467,13 +530,92 @@ async function sendChat() {
     holder.querySelector('.bub').textContent = 'Failed: ' + e.message;
   } finally { $('#csend').disabled = false; }
 }
+function insertAt() {
+  const el = $('#cinput');
+  el.focus();
+  if (!el.value.endsWith('@')) el.value += (el.value && !el.value.endsWith(' ') ? ' ' : '') + '@';
+  el.setSelectionRange(el.value.length, el.value.length);
+  updateMention();
+}
+$('#atbtn').onclick = insertAt;
+
+document.querySelectorAll('.sugg button').forEach(b => {
+  b.onclick = () => {
+    if (b.dataset.q === '@') return insertAt();
+    $('#cinput').value = b.dataset.q;
+    sendChat();
+  };
+});
+
 $('#csend').onclick = sendChat;
-$('#cinput').addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+$('#cinput').addEventListener('keydown', e => {
+  if (mMatches.length) {
+    if (e.key === 'ArrowDown') { e.preventDefault(); mSel = (mSel + 1) % mMatches.length; return renderMention(); }
+    if (e.key === 'ArrowUp')   { e.preventDefault(); mSel = (mSel - 1 + mMatches.length) % mMatches.length; return renderMention(); }
+    if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); return pickMention(mSel); }
+    if (e.key === 'Escape')    { e.preventDefault(); return closeMention(); }
+  }
+  if (e.key === 'Enter') sendChat();
+});
 $('#ask').addEventListener('keydown', e => { if (e.key === 'Enter') $('#send').click(); });
+
+let allTickets = [];
+
+/* ---------- @ autocomplete for tracking IDs ---------- */
+const mention = () => $('#mention');
+let mSel = 0, mMatches = [], mStart = -1;
+
+function closeMention() { mention().classList.remove('on'); mMatches = []; mStart = -1; }
+
+function renderMention() {
+  if (!mMatches.length) { closeMention(); return; }
+  mention().innerHTML = '<div class="mhint">↑↓ to choose · Enter to insert</div>' +
+    mMatches.map((c, i) =>
+      '<div class="mrow' + (i === mSel ? ' sel' : '') + '" data-i="' + i + '">' +
+      '<span class="mt">' + c.trackingId + '</span>' +
+      '<span class="mw">' + c.issue + ' · ' + c.wardName + '</span></div>').join('');
+  mention().classList.add('on');
+  mention().querySelectorAll('.mrow').forEach(r => {
+    r.onmousedown = e => { e.preventDefault(); pickMention(+r.dataset.i); };
+  });
+}
+
+function pickMention(i) {
+  const c = mMatches[i];
+  if (!c || mStart < 0) return;
+  const el = $('#cinput'), v = el.value;
+  const before = v.slice(0, mStart), after = v.slice(el.selectionStart);
+  el.value = before + c.trackingId + (after.startsWith(' ') ? '' : ' ') + after;
+  const pos = (before + c.trackingId + ' ').length;
+  el.focus(); el.setSelectionRange(pos, pos);
+  closeMention();
+}
+
+function updateMention() {
+  const el = $('#cinput'), pos = el.selectionStart, v = el.value;
+  const at = v.lastIndexOf('@', pos - 1);
+  if (at < 0 || (at > 0 && !/\s/.test(v[at - 1]))) return closeMention();
+  const q = v.slice(at + 1, pos);
+  if (/\s/.test(q)) return closeMention();
+  mStart = at;
+  const needle = q.toLowerCase();
+  mMatches = allTickets.filter(c =>
+    !needle ||
+    c.trackingId.toLowerCase().includes(needle) ||
+    c.issue.toLowerCase().includes(needle) ||
+    (c.wardName || '').toLowerCase().includes(needle)
+  ).slice(0, 6);
+  mSel = 0;
+  renderMention();
+}
+
+$('#cinput').addEventListener('input', updateMention);
+$('#cinput').addEventListener('blur', () => setTimeout(closeMention, 120));
 
 async function loadList() {
   try {
     const items = await (await fetch('/api/complaints')).json();
+    allTickets = items;
     if (!items.length) { $('#dlist').innerHTML = '<div class="empty">Nothing filed yet.</div>'; return; }
     $('#dlist').innerHTML = items.map(c =>
       '<div class="it" data-tid="' + c.trackingId + '"><div class="rw"><div>' +
