@@ -1,0 +1,291 @@
+{
+  "_note": "Mock AMC data. Ward IDs are invented; centroids are approximate (±500m), which is fine for nearest-centroid routing.",
+  "wards": [
+    {
+      "id": "W01",
+      "name": "Khadia",
+      "zone": "Central",
+      "lat": 23.026,
+      "lng": 72.59,
+      "areas": [
+        "Khadia",
+        "Kalupur",
+        "Lal Darwaja",
+        "Raipur",
+        "Shahpur",
+        "Dariapur",
+        "Astodia",
+        "Relief Road",
+        "Manek Chowk"
+      ]
+    },
+    {
+      "id": "W03",
+      "name": "Chandkheda",
+      "zone": "North",
+      "lat": 23.11,
+      "lng": 72.59,
+      "areas": [
+        "Chandkheda",
+        "Motera",
+        "New CG Road",
+        "Zundal",
+        "Bhat",
+        "Koteshwar",
+        "Sughad"
+      ]
+    },
+    {
+      "id": "W05",
+      "name": "Sabarmati",
+      "zone": "North",
+      "lat": 23.083,
+      "lng": 72.58,
+      "areas": [
+        "Sabarmati",
+        "Ranip",
+        "Dharmnagar",
+        "Chandlodia",
+        "Nirnaynagar",
+        "Subhash Bridge",
+        "Keshavnagar"
+      ]
+    },
+    {
+      "id": "W06",
+      "name": "Shahibaug",
+      "zone": "North Central",
+      "lat": 23.055,
+      "lng": 72.595,
+      "areas": [
+        "Shahibaug",
+        "Asarwa",
+        "Civil Hospital",
+        "Dudheshwar",
+        "Girdharnagar",
+        "Kalupur Station Road"
+      ]
+    },
+    {
+      "id": "W08",
+      "name": "Ellisbridge",
+      "zone": "Central",
+      "lat": 23.018,
+      "lng": 72.568,
+      "areas": [
+        "Ellisbridge",
+        "Paldi",
+        "Ashram Road",
+        "Vasna",
+        "Riverfront",
+        "Dharnidhar",
+        "Bhattha",
+        "Sattar Taluka"
+      ]
+    },
+    {
+      "id": "W12",
+      "name": "Navrangpura",
+      "zone": "West",
+      "lat": 23.0376,
+      "lng": 72.56,
+      "areas": [
+        "Navrangpura",
+        "Stadium",
+        "CG Road",
+        "Law Garden",
+        "Gujarat University",
+        "Mithakhali",
+        "Commerce Six Roads",
+        "Panjrapole",
+        "Gulbai Tekra"
+      ]
+    },
+    {
+      "id": "W15",
+      "name": "Naranpura",
+      "zone": "West",
+      "lat": 23.059,
+      "lng": 72.56,
+      "areas": [
+        "Naranpura",
+        "Vijay Cross Road",
+        "Akhbarnagar",
+        "Usmanpura",
+        "Vadaj",
+        "Nava Vadaj",
+        "Bhimjipura",
+        "Ankur",
+        "Stadium Road"
+      ]
+    },
+    {
+      "id": "W19",
+      "name": "Vastrapur",
+      "zone": "West",
+      "lat": 23.0395,
+      "lng": 72.529,
+      "areas": [
+        "Vastrapur",
+        "Vastrapur Lake",
+        "IIM Road",
+        "Judges Bungalow",
+        "Ramdev Nagar",
+        "Shilp Cross Road",
+        "Gurukul"
+      ]
+    },
+    {
+      "id": "W21",
+      "name": "Bodakdev",
+      "zone": "West",
+      "lat": 23.04,
+      "lng": 72.51,
+      "areas": [
+        "Bodakdev",
+        "SG Highway",
+        "Sindhu Bhavan Road",
+        "Pakwan",
+        "Vikram Nagar",
+        "Anandnagar Road",
+        "Iscon"
+      ]
+    },
+    {
+      "id": "W23",
+      "name": "Thaltej",
+      "zone": "West",
+      "lat": 23.05,
+      "lng": 72.5,
+      "areas": [
+        "Thaltej",
+        "Shilaj",
+        "Rajpath Club Road",
+        "Sola",
+        "Science City",
+        "Hebatpur",
+        "Gota",
+        "Bopal Road"
+      ]
+    },
+    {
+      "id": "W27",
+      "name": "Maninagar",
+      "zone": "South",
+      "lat": 22.996,
+      "lng": 72.602,
+      "areas": [
+        "Maninagar",
+        "Kankaria",
+        "Jawahar Chowk",
+        "Khokhra",
+        "Ghodasar",
+        "Isanpur",
+        "Vatva",
+        "Rambaug"
+      ]
+    },
+    {
+      "id": "W31",
+      "name": "Satellite",
+      "zone": "West",
+      "lat": 23.028,
+      "lng": 72.525,
+      "areas": [
+        "Satellite",
+        "Jodhpur",
+        "Prahlad Nagar",
+        "Anandnagar",
+        "Shyamal",
+        "Nehrunagar",
+        "Shivranjani",
+        "Bopal"
+      ]
+    },
+    {
+      "id": "W34",
+      "name": "Vejalpur",
+      "zone": "South West",
+      "lat": 23.0,
+      "lng": 72.52,
+      "areas": [
+        "Vejalpur",
+        "Juhapura",
+        "Makarba",
+        "Sarkhej",
+        "Jivraj Park",
+        "Shahwadi",
+        "Fatehwadi"
+      ]
+    },
+    {
+      "id": "W41",
+      "name": "Bapunagar",
+      "zone": "East",
+      "lat": 23.04,
+      "lng": 72.64,
+      "areas": [
+        "Bapunagar",
+        "Rakhial",
+        "Thakkarbapa Nagar",
+        "Amraiwadi",
+        "Gomtipur",
+        "Saraspur",
+        "India Colony",
+        "Khokhra Circle"
+      ]
+    },
+    {
+      "id": "W44",
+      "name": "Nikol",
+      "zone": "East",
+      "lat": 23.05,
+      "lng": 72.67,
+      "areas": [
+        "Nikol",
+        "Naroda Road",
+        "Odhav",
+        "Vastral",
+        "Ramol",
+        "Kathwada",
+        "New Nikol",
+        "Naroda"
+      ]
+    }
+  ],
+  "departments": {
+    "pothole": "Roads & Buildings",
+    "garbage": "Solid Waste Management",
+    "streetlight": "Light Department",
+    "waterlogging": "Storm Water Drainage"
+  },
+  "complaints": [
+    {
+      "trackingId": "AMC-2026-000121",
+      "ward": "W41",
+      "issue": "streetlight",
+      "department": "Light Department",
+      "description": "Streetlight out on Rakhial main road, stretch is dark after 7pm.",
+      "status": "Resolved",
+      "filedAt": "2026-10-21T19:05:00+05:30"
+    },
+    {
+      "trackingId": "AMC-2026-000122",
+      "ward": "W19",
+      "issue": "garbage",
+      "department": "Solid Waste Management",
+      "description": "Garbage dump overflowing near Vastrapur lake gate 2.",
+      "status": "In Progress",
+      "filedAt": "2026-10-23T09:40:00+05:30"
+    },
+    {
+      "trackingId": "AMC-2026-000123",
+      "ward": "W12",
+      "issue": "pothole",
+      "department": "Roads & Buildings",
+      "description": "Pothole on CG Road near Stadium crossing, two-wheelers swerving.",
+      "status": "Assigned",
+      "filedAt": "2026-10-24T17:20:00+05:30"
+    }
+  ]
+}
