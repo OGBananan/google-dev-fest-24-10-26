@@ -324,6 +324,7 @@
   <div class="sheet" id="sheet-report">
     <div class="shead">
       <div><h3 id="rtitle">Create a new issue</h3><p id="rsub">Photograph the problem. The agent handles the rest.</p></div>
+      <button class="act secondary hidden" id="again">New issue</button>
       <button class="x" data-close>×</button>
     </div>
     <div class="sbody">
@@ -370,7 +371,7 @@
         or just ask in plain language.</p>
         <div class="sugg">
           <button data-q="@">@ Pick a ticket</button>
-          <button data-q="What's the status of AMC-2026-000123?">Status of my pothole</button>
+          <button data-q="Which pothole complaints are still open?">Status of my pothole</button>
           <button data-q="Which complaints are still open?">What's still open?</button>
         </div>
       </div>
@@ -482,7 +483,9 @@ function renderTrace(box, steps) {
     const v = s.kind === 'call'
       ? Object.entries(s.args).filter(([k]) => k !== 'image_path')
           .map(([k, val]) => k + '=' + val).join('  ') || 'photo'
-      : Object.values(s.data).join(' · ');
+      : (s.data.tickets
+          ? s.data.total + ' tickets: ' + s.data.tickets.map(t => t.tracking_id).join(', ')
+          : Object.values(s.data).join(' · '));
     const ar = document.createElement('span'); ar.className = 'ar'; ar.textContent = s.kind === 'call' ? '→' : '←';
     const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = s.name;
     const vl = document.createElement('span'); vl.className = 'vl'; vl.textContent = v;
@@ -664,6 +667,7 @@ $('#submit').onclick = async () => {
     await playback(d);
     $('#rtitle').textContent = 'Complaint filed';
     $('#rsub').textContent = 'Ask anything about it below.';
+    $('#again').classList.remove('hidden');
     loadList();
   } catch (e) {
     $('#stage-result').classList.add('hidden');
@@ -683,10 +687,12 @@ $('#send').onclick = async () => {
   const think = addThinking();
   $('#send').disabled = true;
   try {
-    const d = await (await fetch('/api/complaints/' + sessionId + '/chat', {
+    const response = await fetch('/api/complaints/' + sessionId + '/chat', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: msg })
-    })).json();
+    });
+    if (!response.ok) throw new Error((await response.text()).slice(0, 180));
+    const d = await response.json();
     think.remove();
     for (const step of d.trace) {
       if (step.kind === 'call') { addToolCall(step); await sleep(420); }
@@ -707,6 +713,7 @@ $('#send').onclick = async () => {
 
 $('#again').onclick = () => {
   blob = null; sessionId = null;
+  $('#again').classList.add('hidden');
   $('#retake').click();
   $('#desc').value = ''; $('#area').value = ''; $('#ask').value = '';
   rthread().innerHTML = '';
@@ -738,10 +745,12 @@ async function sendChat() {
   const holder = bubble('…', false);
   $('#csend').disabled = true;
   try {
-    const d = await (await fetch('/api/chat', {
+    const response = await fetch('/api/chat', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: msg, session_id: chatSession })
-    })).json();
+    });
+    if (!response.ok) throw new Error((await response.text()).slice(0, 180));
+    const d = await response.json();
     chatSession = d.session_id;
     if (d.error) {
       holder.querySelector('.bub').textContent =

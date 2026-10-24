@@ -83,3 +83,42 @@ def get_complaint_status(tracking_id: str) -> dict:
                 "ward_name": ward["name"] if ward else c["ward"],
             }
     return {"error": f"no complaint found with tracking id {tracking_id}"}
+
+
+def list_existing_tickets(query: str = "", status: str = "") -> dict:
+    """Find already filed tickets by issue, ward, tracking ID, or status.
+
+    Args:
+        query: Optional word or phrase to match against ticket ID, issue, ward, or description.
+        status: Optional status to filter by, such as Filed, Assigned, or open.
+            Use open to include all statuses except Resolved and Closed.
+
+    Returns:
+        Matching ticket summaries, newest first. Never creates a ticket.
+    """
+    db = load()
+    ward_names = {w["id"]: w["name"] for w in db["wards"]}
+    needle = query.strip().lower()
+    wanted_status = status.strip().lower()
+    matches = []
+    for c in reversed(db.get("complaints", [])):
+        ward_name = ward_names.get(c["ward"], c["ward"])
+        searchable = " ".join(str(x) for x in (
+            c["trackingId"], c["issue"], ward_name, c.get("description", "")
+        )).lower()
+        if needle and needle not in searchable:
+            continue
+        if wanted_status == "open" and c["status"].lower() in {"resolved", "closed"}:
+            continue
+        if wanted_status and wanted_status != "open" and wanted_status not in c["status"].lower():
+            continue
+        matches.append({
+            "tracking_id": c["trackingId"],
+            "issue_type": c["issue"],
+            "ward_name": ward_name,
+            "department": c.get("department", ""),
+            "status": c["status"],
+            "filed_at": c["filedAt"],
+        })
+    return {"tickets": matches[:20], "shown": min(len(matches), 20),
+            "total": len(matches)}

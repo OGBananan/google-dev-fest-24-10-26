@@ -34,6 +34,7 @@ from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
 from civic_agent.agent import root_agent
+from civic_agent.chat_agent import chat_agent
 from civic_agent.data import load, mutate, now_ist
 from civic_agent.tools.complaints import get_complaint_status
 
@@ -48,6 +49,9 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 app = FastAPI(title="Civic Complaint Agent")
 session_service = InMemorySessionService()
 runner = Runner(agent=root_agent, app_name=APP_NAME, session_service=session_service)
+CHAT_APP_NAME = "civic_ticket_chat"
+chat_runner = Runner(agent=chat_agent, app_name=CHAT_APP_NAME,
+                     session_service=session_service)
 
 # session_id -> tracking_id. The session exists before the ID does; the ID only
 # comes back from file_complaint.
@@ -137,7 +141,7 @@ def _append_cached(db: dict) -> dict:
     return record
 
 
-async def _run(session_id: str, message: str) -> dict:
+async def _run(session_id: str, message: str, *, chat_mode: bool = False) -> dict:
     """Send one message to the agent, return its reply plus the tool trace."""
     trace: list[dict] = []
     reply_parts: list[str] = []
@@ -149,7 +153,8 @@ async def _run(session_id: str, message: str) -> dict:
     content = types.Content(role="user", parts=[types.Part(text=message)])
     error = None
     try:
-        async for event in runner.run_async(
+        active_runner = chat_runner if chat_mode else runner
+        async for event in active_runner.run_async(
             user_id=USER_ID, session_id=session_id, new_message=content
         ):
             parts = getattr(getattr(event, "content", None), "parts", None) or []
@@ -176,7 +181,7 @@ async def _run(session_id: str, message: str) -> dict:
             if tid:
                 SESSION_TRACKING[session_id] = tid
 
-    if error is not None and DEMO_FALLBACK:
+    if error is not None and DEMO_FALLBACK and not chat_mode:
         # Rules allow cached responses for full credit. This is labelled as
         # cached in the response so the UI can say so - never passed off as live.
         return _cached_run(message, session_id, error, ms())
@@ -185,7 +190,8 @@ async def _run(session_id: str, message: str) -> dict:
         "reply": "\n".join(reply_parts).strip(),
         "trace": trace,
         "tracking_id": SESSION_TRACKING.get(session_id),
-        "meta": {"model": root_agent.model, "elapsed_ms": ms(),
+        "meta": {"model": chat_agent.model if chat_mode else root_agent.model,
+                 "elapsed_ms": ms(),
                  "session_id": session_id, "cached": False},
         "error": error,
     }
@@ -224,13 +230,13 @@ async def create_complaint(
     return JSONResponse({"session_id": session_id, **result})
 
 
-async def _ensure_session(session_id: str) -> None:
+async def _ensure_session(session_id: str, app_name: str = APP_NAME) -> None:
     existing = await session_service.get_session(
-        app_name=APP_NAME, user_id=USER_ID, session_id=session_id
+        app_name=app_name, user_id=USER_ID, session_id=session_id
     )
     if existing is None:
         await session_service.create_session(
-            app_name=APP_NAME, user_id=USER_ID, session_id=session_id
+            app_name=app_name, user_id=USER_ID, session_id=session_id
         )
 
 
@@ -240,8 +246,13 @@ async def chat(session_id: str, payload: dict):
     message = (payload or {}).get("message", "").strip()
     if not message:
         raise HTTPException(400, "message is required")
-    await _ensure_session(session_id)
-    return JSONResponse(await _run(session_id, message))
+    tracking_id = SESSION_TRACKING.get(session_id)
+    if not tracking_id:
+        raise HTTPException(404, "No filed complaint for this session")
+    chat_session_id = f"ticket-{session_id}"
+    await _ensure_session(chat_session_id, CHAT_APP_NAME)
+    prompt = f"Ticket for this complaint: {tracking_id}\nResident asks: {message}"
+    return JSONResponse(await _run(chat_session_id, prompt, chat_mode=True))
 
 
 @app.post("/api/chat")
@@ -256,8 +267,10 @@ async def general_chat(payload: dict):
     if not message:
         raise HTTPException(400, "message is required")
     session_id = (payload.get("session_id") or "").strip() or f"chat-{uuid.uuid4().hex}"
-    await _ensure_session(session_id)
-    result = await _run(session_id, message)
+    if not session_id.startswith("chat-") or len(session_id) > 100:
+        raise HTTPException(400, "invalid chat session id")
+    await _ensure_session(session_id, CHAT_APP_NAME)
+    result = await _run(session_id, message, chat_mode=True)
     return JSONResponse({"session_id": session_id, **result})
 
 
