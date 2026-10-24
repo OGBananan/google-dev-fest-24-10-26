@@ -1,8 +1,18 @@
-"""TOOLBOX — vision.
+"""TOOLBOX — image understanding.
 
-The agent is text-only. The photo never enters the ADK turn as a multimodal
-part: the form uploads it, the backend saves it, and this tool calls Gemini
-itself with the file path.
+Google technology used here
+---------------------------
+* **Gemini multimodal image understanding** via the ``google-genai`` SDK. The photo is
+  sent as an inline ``types.Part`` alongside the triage prompt.
+* **Gemini structured output** — ``response_mime_type="application/json"`` plus a
+  ``response_schema`` with an enum constrains ``issue_type`` to the exact keys in
+  ``wards.json``. Without the enum the model can invent a label like "road damage"
+  and the department lookup would ``KeyError`` mid-demo.
+
+Design note: the agent itself is text-only. The photo never enters the ADK turn as a
+multimodal part — the form uploads it, the backend saves it, and this tool calls Gemini
+with the file path. Mixing image parts into a turn that also needs function calling is
+the fiddliest part of the stack, and routing around it costs nothing here.
 """
 
 import mimetypes

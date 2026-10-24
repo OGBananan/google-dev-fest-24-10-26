@@ -1,8 +1,12 @@
-"""TOOLBOX — complaint filing and status.
+"""TOOLBOX — filing and status lookup against the mocked AMC system.
 
-file_complaint is the ONLY source of tracking IDs. The agent is forbidden from
-inventing one; if it did, get_complaint_status would fail live in front of the
-jury.
+Per the hackathon rules the municipal side is mocked as local JSON; no real AMC portal
+is contacted. ``wards.json`` holds the ward table, the department map and the complaint
+records together, so the whole data layer stays inspectable during the demo.
+
+``file_complaint`` is the ONLY source of tracking IDs, and the agent's system prompt
+forbids inventing one. If it invented an ID, ``get_complaint_status`` would fail to find
+it live in front of the jury.
 """
 
 from ..data import load, mutate, now_ist

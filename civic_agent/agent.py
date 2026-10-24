@@ -1,8 +1,19 @@
-"""AGENT + INSTRUCTIONS.
+"""AGENT + INSTRUCTIONS — the single Gemini-backed agent.
 
-Deliberately no sub-agents and no skills. At four tools and one linear flow
-they would be indirection with no demo benefit, and each is another place the
-demo can stall.
+Google technology used here
+---------------------------
+* **Google Agent Development Kit (ADK)** — ``google.adk.agents.LlmAgent`` owns the
+  reasoning loop. ADK decides which tool to call and in what order; nothing in this
+  project hard-codes the sequence. The ``Runner`` that drives this agent lives in
+  ``main.py``.
+* **Gemini** — the model id comes from ``GEMINI_MODEL`` (see ``.env``). ADK handles
+  function-call declaration, dispatch and the tool-result round trip for us.
+* **ADK automatic function calling** — the four callables in ``tools/`` are passed as
+  plain Python functions. ADK derives each tool's JSON schema from the type hints and
+  docstring, which is why those docstrings are written for the model to read.
+
+Deliberately no sub-agents and no skills. At four tools and one linear flow they would
+be indirection with no demo benefit, and each is another place the demo can stall.
 """
 
 import os

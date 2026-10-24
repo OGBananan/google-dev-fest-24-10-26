@@ -1,7 +1,15 @@
 """TOOLBOX — ward and department routing.
 
-Nearest ward centroid from wards.json. No live Geocoding call: one less
-network dependency in the room, and accurate enough at ward scale.
+Resolves a location to the AMC ward that owns that street, then to the department that
+handles that class of issue.
+
+Google technology used here
+---------------------------
+* Coordinates arrive from the **browser Geolocation API** (see ``public/index.html``),
+  not from EXIF — a ``getUserMedia`` canvas capture carries no camera metadata.
+* Ward centroids are **pre-geocoded** into ``wards.json`` rather than resolved through a
+  live Maps Geocoding call. Nearest-centroid is accurate enough at Ahmedabad ward scale
+  and removes a network dependency from the demo path, which matters on venue Wi-Fi.
 """
 
 from math import asin, cos, radians, sin, sqrt

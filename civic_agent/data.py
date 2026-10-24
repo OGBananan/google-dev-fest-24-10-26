@@ -1,7 +1,9 @@
-"""Mock AMC store. Single JSON file, read-modify-write under a lock.
+"""Mock AMC store — a single JSON file, read-modify-write under a lock.
 
-Not a database on purpose: the hackathon rules say mock the municipal system,
-and one file keeps the whole data layer inspectable during the demo.
+Not a database on purpose. The hackathon rules say to mock the municipal system as a
+local database or JSON file, and one file keeps every record visible while demoing.
+Writes go through a temp file and an atomic replace so a crash mid-write cannot leave
+the store truncated.
 """
 
 import json
