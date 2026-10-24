@@ -119,8 +119,8 @@
   .empty{padding:24px 18px;color:var(--dim);font-size:13.5px;text-align:center}
 
   /* ---------- sheet (modal) ---------- */
-  .sheet{position:fixed;top:0;bottom:0;left:0;right:0;max-width:440px;margin-inline:auto;
-    background:var(--bg);z-index:50;display:none;
+  .sheet{position:fixed;top:0;left:0;right:0;max-width:440px;margin-inline:auto;
+    height:100dvh;background:var(--bg);z-index:50;display:none;
     flex-direction:column;animation:rise .24s cubic-bezier(.3,.8,.3,1)}
   .sheet.on{display:flex}
   @keyframes rise{from{opacity:0;transform:translateY(14px)}}
@@ -182,7 +182,8 @@
     background:var(--panel)}
   .msg.me .bub{background:var(--fg);color:#fff;border-color:transparent}
   .composer{display:flex;gap:8px;padding:13px 16px;border-top:1px solid var(--line);
-    background:var(--panel);position:relative}
+    background:var(--panel);position:relative;flex:none;
+    padding-bottom:calc(13px + env(safe-area-inset-bottom))}
   .mention{position:absolute;left:16px;right:16px;bottom:calc(100% + 8px);background:var(--panel);
     border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 28px rgba(0,0,0,.14);
     display:none;max-height:min(232px,38vh);overflow-y:auto;z-index:60;
@@ -760,33 +761,6 @@ async function sendChat() {
     holder.querySelector('.bub').textContent = 'Failed: ' + e.message;
   } finally { $('#csend').disabled = false; }
 }
-function insertAt() {
-  const el = $('#cinput');
-  el.focus();
-  if (!el.value.endsWith('@')) el.value += (el.value && !el.value.endsWith(' ') ? ' ' : '') + '@';
-  el.setSelectionRange(el.value.length, el.value.length);
-  updateMention();
-}
-
-document.querySelectorAll('.sugg button').forEach(b => {
-  b.onclick = () => {
-    if (b.dataset.q === '@') return insertAt();
-    $('#cinput').value = b.dataset.q;
-    sendChat();
-  };
-});
-
-$('#csend').onclick = sendChat;
-$('#cinput').addEventListener('keydown', e => {
-  if (mMatches.length) {
-    if (e.key === 'ArrowDown') { e.preventDefault(); mSel = (mSel + 1) % mMatches.length; return renderMention(); }
-    if (e.key === 'ArrowUp')   { e.preventDefault(); mSel = (mSel - 1 + mMatches.length) % mMatches.length; return renderMention(); }
-    if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); return pickMention(mSel); }
-    if (e.key === 'Escape')    { e.preventDefault(); return closeMention(); }
-  }
-  if (e.key === 'Enter') sendChat();
-});
-
 let allTickets = [];
 
 /* ---------- @ autocomplete for tracking IDs ----------
@@ -882,6 +856,7 @@ function wireMention(el, onEnter) {
   }
 }
 
+$('#csend').onclick = sendChat;
 wireMention($('#cinput'), sendChat);
 wireMention($('#ask'), () => $('#send').click());
 

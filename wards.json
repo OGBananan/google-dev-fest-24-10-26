@@ -295,6 +295,15 @@
       "description": "A significant pothole containing standing water is present on the road surface, creating a safety hazard for commuters.",
       "status": "Filed",
       "filedAt": "2026-10-24T19:08:36+05:30"
+    },
+    {
+      "trackingId": "AMC-2026-000125",
+      "ward": "W05",
+      "issue": "pothole",
+      "department": "Solid Waste Management",
+      "description": "A large pothole filled with water is present on the road surface.",
+      "status": "Filed",
+      "filedAt": "2026-10-24T19:12:03+05:30"
     }
   ]
 }
